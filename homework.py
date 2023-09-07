@@ -80,7 +80,7 @@ class Running(Training):
                 * self.weight / self.M_IN_KM
                 * self.duration * self.M_IN_H)
 
-        return float(round(cals, 3))
+        return round(cals, 3)
 
 
 class SportsWalking(Training):

@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import typing
+# from decimal import Decimal as dc
 
 
 @dataclass
@@ -11,10 +12,10 @@ class InfoMessage:
     speed: float
     calories: float
     msg = ('Тип тренировки: {}; '
-           'Длительность: {} ч.; '
-           'Дистанция: {} км; '
-           'Ср. скорость: {} км/ч; '
-           'Потрачено ккал: {}.')
+           'Длительность: {:.3f} ч.; '
+           'Дистанция: {:.3f} км; '
+           'Ср. скорость: {:.3f} км/ч; '
+           'Потрачено ккал: {:.3f}.')
 
     def get_message(self) -> str:
         return InfoMessage.msg.format(
@@ -25,15 +26,19 @@ class InfoMessage:
             self.calories)
 
 
-@dataclass
 class Training:
     """Базовый класс тренировки."""
     M_IN_KM: int = 1000
     LEN_STEP: float = 0.65
     M_IN_H: int = 60
-    action: int
-    duration: float
-    weight: float
+
+    def __init__(self,
+                 action: int,
+                 duration: float,
+                 weight: float) -> None:
+        self.action = action
+        self.duration = duration
+        self.weight = weight
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
@@ -43,7 +48,6 @@ class Training:
     def get_mean_speed(self) -> float:
         """Получить среднюю скорость движения."""
         speed = self.get_distance() / self.duration
-
         return speed
 
     def get_spent_calories(self) -> float:
@@ -100,7 +104,7 @@ class SportsWalking(Training):
                  * self.CALORIES_MEAN_SPEED_MULTIPLIER
                  * self.weight) * (self.duration * self.M_IN_H))
 
-        return round(cals, 3)
+        return cals
 
 
 class Swimming(Training):
@@ -133,7 +137,7 @@ class Swimming(Training):
                 * self.CALORIES_MEAN_SPEED_MULTIPLIER * self.weight
                 * self.duration)
 
-        return round(cals, 3)
+        return cals
 
 
 def read_package(workout_type: str, data: list[int]) -> Training:
@@ -143,12 +147,14 @@ def read_package(workout_type: str, data: list[int]) -> Training:
         'RUN': Running,
         'WLK': SportsWalking
     }
-    try:
-        tr = trainings[workout_type](*data)
-    except KeyError:
-        print('"{workout_type}" not found in dictionary, using default')
 
-    return tr
+    if not (workout_type in trainings):
+        try:
+            return trainings[workout_type](*data)
+        except KeyError:
+            print('"{workout_type}" not found in dictionary, using default')
+    else:
+        return trainings[workout_type](*data)
 
 
 def main(training: Training) -> None:

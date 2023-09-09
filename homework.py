@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import typing
-# from decimal import Decimal as dc
 
 
 @dataclass
@@ -11,14 +10,14 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    msg = ('Тип тренировки: {}; '
+    MSG = ('Тип тренировки: {}; '
            'Длительность: {:.3f} ч.; '
            'Дистанция: {:.3f} км; '
            'Ср. скорость: {:.3f} км/ч; '
            'Потрачено ккал: {:.3f}.')
 
     def get_message(self) -> str:
-        return InfoMessage.msg.format(
+        return self.MSG.format(
             self.training_type,
             self.duration,
             self.distance,
@@ -52,10 +51,9 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        def run(self):
-            raise NotImplementedError(
-                'Определите количество полтраченных калорий'
-                f' в {self.__class__.__name__}.')
+        raise NotImplementedError(
+            'Определите количество полтраченных калорий'
+            f' в {self.__class__.__name__}.')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -140,21 +138,19 @@ class Swimming(Training):
         return cals
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: list[float]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    trainings: dict[str, typing.Type()] = {
+    trainings: dict[str, typing.Type] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
     }
 
-    if not (workout_type in trainings):
-        try:
-            return trainings[workout_type](*data)
-        except KeyError:
-            print('"{workout_type}" not found in dictionary, using default')
-    else:
-        return trainings[workout_type](*data)
+    if workout_type not in trainings:
+        raise KeyError(f'"{workout_type}" '
+                       'not found in dictionary, using default')
+
+    return trainings[workout_type](*data)
 
 
 def main(training: Training) -> None:
